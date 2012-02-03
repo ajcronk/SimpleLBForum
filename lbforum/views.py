@@ -26,7 +26,7 @@ def recent(request, template_name="lbforum/recent.html"):
     return render(request, template_name, ctx)
 
 def category(request, category_slug='', topic_type='', topic_type2='',
-        template_name="lbforum/forum.html"):
+        template_name="lbforum/category.html"):
     category = get_object_or_404(Category, slug = category_slug)
     if topic_type and topic_type != 'good':
         topic_type2 = topic_type
@@ -39,7 +39,7 @@ def category(request, category_slug='', topic_type='', topic_type2='',
     order_by = request.GET.get('order_by', '-last_reply_on')
     topics = Topic.objects.filter(category=category).order_by('-sticky', order_by).select_related()[:20]
     form = ForumForm(request.GET)
-    ext_ctx = {'form': form, 'topics': topics,}
+    ext_ctx = {'form': form, 'category': category, 'topics': topics,}
     return render(request, template_name, ext_ctx)
 
 def topic(request, topic_id, template_name="lbforum/topic.html"):

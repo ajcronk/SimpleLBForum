@@ -67,7 +67,8 @@
                     {% csrf_token %} 
                 </div>
                 {% if topic_post%}
-                    {{form.topic_type}} {{form.subject}}
+                    {{form.subject}}
+                    {{form.category}}
                     <div class="sep10"></div>
                 {% endif %}
                 {{form.message}}

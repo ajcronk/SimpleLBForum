@@ -5,7 +5,7 @@ from datetime import datetime
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from models import Topic, Post
+from models import Category, Post, Topic
 from models import LBForumUserProfile
 
 FORUM_ORDER_BY_CHOICES = (
@@ -20,6 +20,7 @@ class ForumForm(forms.Form):
 class PostForm(forms.ModelForm):
     subject = forms.CharField(label=_('Subject'), \
             widget=forms.TextInput(attrs={'size':'80'}))
+    category = forms.ModelChoiceField(queryset=Category.objects.all())
     message = forms.CharField(label=_('Message'), \
             widget=forms.Textarea(attrs={'cols':'95', 'rows':'14'}))
     attachments = forms.Field(label=_('Attachments'), required=False,\
@@ -36,7 +37,7 @@ class PostForm(forms.ModelForm):
         self.topic = kwargs.pop('topic', None)
         self.ip = kwargs.pop('ip', None)
         super(PostForm, self).__init__(*args, **kwargs)
-        self.fields.keyOrder = ['subject', 'message', 'attachments', 'need_replay', 
+        self.fields.keyOrder = ['subject', 'category', 'message', 'attachments', 'need_replay', 
                 'need_reply_attachments']
 
 class EditPostForm(PostForm):
@@ -82,6 +83,7 @@ class NewPostForm(PostForm):
         if not self.topic:
             topic = Topic(posted_by=self.user,
                           subject=self.cleaned_data['subject'],
+                          category=self.cleaned_data['category'],
                           need_replay=self.cleaned_data['need_replay'],
                           need_reply_attachments=self.cleaned_data['need_reply_attachments'],
                           )
