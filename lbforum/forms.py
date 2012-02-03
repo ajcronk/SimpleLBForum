@@ -5,7 +5,7 @@ from datetime import datetime
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from models import Topic, Post, TopicType
+from models import Topic, Post
 from models import LBForumUserProfile
 
 FORUM_ORDER_BY_CHOICES = (
@@ -18,7 +18,6 @@ class ForumForm(forms.Form):
             required=False)
 
 class PostForm(forms.ModelForm):
-    topic_type = forms.ChoiceField(label=_('Topic Type'), required=False)
     subject = forms.CharField(label=_('Subject'), \
             widget=forms.TextInput(attrs={'size':'80'}))
     message = forms.CharField(label=_('Message'), \
@@ -35,15 +34,9 @@ class PostForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.topic = kwargs.pop('topic', None)
-        self.forum = kwargs.pop('forum', None)
         self.ip = kwargs.pop('ip', None)
         super(PostForm, self).__init__(*args, **kwargs)
-        if self.instance.id:
-            self.forum = self.instance.topic.forum
-        topic_types = self.forum.topictype_set.all()
-        self.fields['topic_type'].choices = [(tp.id, tp.name) for tp in topic_types]
-        self.fields['topic_type'].choices.insert(0, (('', '--------')))
-        self.fields.keyOrder = ['topic_type', 'subject', 'message', 'attachments', 'need_replay', 
+        self.fields.keyOrder = ['subject', 'message', 'attachments', 'need_replay', 
                 'need_reply_attachments']
 
 class EditPostForm(PostForm):
@@ -87,17 +80,10 @@ class NewPostForm(PostForm):
     def save(self):
         topic_post = False
         if not self.topic:
-            topic_type = self.cleaned_data['topic_type']
-            if topic_type:
-                topic_type = TopicType.objects.get(id=topic_type)
-            else:
-                topic_type = None
-            topic = Topic(forum=self.forum,
-                          posted_by=self.user,
+            topic = Topic(posted_by=self.user,
                           subject=self.cleaned_data['subject'],
                           need_replay=self.cleaned_data['need_replay'],
                           need_reply_attachments=self.cleaned_data['need_reply_attachments'],
-                          topic_type=topic_type,
                           )
             topic_post = True
             topic.save()

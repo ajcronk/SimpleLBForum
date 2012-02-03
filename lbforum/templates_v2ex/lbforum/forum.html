@@ -65,20 +65,11 @@
                             <div class="sep10"></div>
                             <div class="sep10"></div>
                             <div align="left">
-                                <a href="{% url lbforum_new_topic forum.pk %}" class="super normal button">{% trans "Post new topic" %}</a>
+                                <a href="{% url lbforum_new_topic %}" class="super normal button">{% trans "Post new topic" %}</a>
                             </div>
                         {% endif %} 
                         <div class="sep5"></div>
                         <div class="sep10"></div>
-                        <div>
-                            <div class="tp-btn {% if topic_type != "good" %}selected{% endif %}">
-                                <a href="{% forum_url forum "" topic_type2 %}">{% trans "All" %}</a>
-                            </div>
-                            <div class="tp-btn {% if topic_type == "good" %}selected{% endif %}">
-                                <a href="{% forum_url forum "good" topic_type2 %}">{% trans "Distillate District" %}</a>
-                            </div>
-                        </div>
-
                     </td>
                 </tr>
             </table>

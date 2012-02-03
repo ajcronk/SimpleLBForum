@@ -3,29 +3,10 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from models import Category, Forum, TopicType, Topic, \
+from models import Category, Topic, \
         Post, LBForumUserProfile, gen_last_post_info
 
 admin.site.register(Category)
-
-def update_forum_state_info(modeladmin, request, queryset):
-    for forum in queryset:
-        forum.update_state_info()
-update_forum_state_info.short_description = _("Update forum state info")
-
-class ForumAdmin(admin.ModelAdmin):
-    list_display        = ('name', 'slug', 'category', 'num_topics', \
-            'num_posts', )
-    list_filter         = ('category',)
-    actions = [update_forum_state_info]
-
-admin.site.register(Forum, ForumAdmin)
-
-class TopicTypeAdmin(admin.ModelAdmin):
-    list_display        = ('forum', 'name', 'slug', 'description', )
-    list_filter         = ('forum',)
-
-admin.site.register(TopicType, TopicTypeAdmin)
 
 class PostInline(admin.TabularInline):
     model = Post
@@ -58,9 +39,9 @@ def hide_unhide_topic(modeladmin, request, queryset):
 hide_unhide_topic.short_description = _("hide/unhide topics")
 
 class TopicAdmin(admin.ModelAdmin):
-    list_display        = ('subject', 'forum', 'topic_type', 'posted_by', 'sticky', 'closed',
+    list_display        = ('subject', 'posted_by', 'sticky', 'closed',
             'hidden', 'level', 'num_views', 'num_replies', 'created_on', 'updated_on', )
-    list_filter         = ('forum', 'sticky', 'closed', 'hidden', 'level')
+    list_filter         = ('sticky', 'closed', 'hidden', 'level')
     search_fields       = ('subject', 'posted_by__username', )
     #inlines             = (PostInline, )
     actions = [update_topic_state_info, sticky_unsticky_topic, close_unclose_topic, 

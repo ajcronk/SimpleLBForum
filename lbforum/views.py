@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 #from django.contrib import messages
 
 from forms import EditPostForm, NewPostForm, ForumForm
-from models import Topic, Forum, Post
+from models import Category, Post, Topic
 import settings as lbf_settings
 
 def index(request, template_name="lbforum/index.html"):
@@ -25,10 +25,9 @@ def recent(request, template_name="lbforum/recent.html"):
     ctx['topics'] = Topic.objects.all().order_by('-last_reply_on').select_related()
     return render(request, template_name, ctx)
 
-def forum(request, forum_slug, topic_type='', topic_type2='',
+def category(request, category_slug='', topic_type='', topic_type2='',
         template_name="lbforum/forum.html"):
-    forum = get_object_or_404(Forum, slug = forum_slug)
-    topics = forum.topic_set.all()
+    category = get_object_or_404(Category, slug = category_slug)
     if topic_type and topic_type != 'good':
         topic_type2 = topic_type
         topic_type = ''
@@ -38,10 +37,9 @@ def forum(request, forum_slug, topic_type='', topic_type2='',
     if topic_type2:
         topics = topics.filter(topic_type__slug = topic_type2)
     order_by = request.GET.get('order_by', '-last_reply_on')
-    topics = topics.order_by('-sticky', order_by).select_related()
+    topics = Topic.objects.filter(category=category).order_by('-sticky', order_by).select_related()[:20]
     form = ForumForm(request.GET)
-    ext_ctx = {'form': form, 'forum': forum, 'topics': topics, 
-            'topic_type': topic_type, 'topic_type2': topic_type2}
+    ext_ctx = {'form': form, 'topics': topics,}
     return render(request, template_name, ext_ctx)
 
 def topic(request, topic_id, template_name="lbforum/topic.html"):
@@ -65,21 +63,18 @@ def markitup_preview(request, template_name="lbforum/markitup_preview.html"):
     return render(request, template_name, {'message': request.POST['data']})
 
 @login_required
-def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm, \
+def new_post(request, topic_id=None, form_class=NewPostForm, \
         template_name='lbforum/post.html'):
     qpost = topic = forum = first_post = preview = None
     post_type = _('topic')
     topic_post = True
-    if forum_id:
-        forum = get_object_or_404(Forum, pk=forum_id)
     if topic_id:
         post_type = _('reply')
         topic_post = False
         topic = get_object_or_404(Topic, pk=topic_id)
-        forum = topic.forum
         first_post = topic.posts.order_by('created_on').select_related()[0]
     if request.method == "POST":
-        form = form_class(request.POST, user=request.user, forum=forum, topic=topic, \
+        form = form_class(request.POST, user=request.user, topic=topic, \
                 ip=request.META['REMOTE_ADDR'])
         preview = request.POST.get('preview', '')
         if form.is_valid() and request.POST.get('submit', ''):
@@ -87,15 +82,15 @@ def new_post(request, forum_id=None, topic_id=None, form_class=NewPostForm, \
             if topic:
                 return HttpResponseRedirect(post.get_absolute_url_ext())
             else:
-                return HttpResponseRedirect(reverse("lbforum_forum", args=[forum.slug]))
+                return HttpResponseRedirect(reverse("lbforum_index"))
     else:
         initial={}
         qid = request.GET.get('qid', '')
         if qid:
             qpost = get_object_or_404(Post, id=qid)
             initial['message'] = "[quote=%s]%s[/quote]" % (qpost.posted_by.username, qpost.message)
-        form = form_class(initial=initial, forum=forum)
-    ext_ctx = {'forum':forum, 'form':form, 'topic':topic, 'first_post':first_post, \
+        form = form_class(initial=initial)
+    ext_ctx = {'form':form, 'topic':topic, 'first_post':first_post, \
             'post_type':post_type, 'preview':preview}
     ext_ctx['unpublished_attachments'] = request.user.attachment_set.all().filter(activated=False)
     ext_ctx['is_new_post'] = True

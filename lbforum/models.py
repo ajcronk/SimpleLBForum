@@ -19,6 +19,7 @@ class Config(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length = 100)
+    slug = models.SlugField(max_length = 110, default='general')
     description = models.TextField(default = '')
     ordering = models.PositiveIntegerField(default = 1)    
     created_on = models.DateTimeField(auto_now_add = True)
@@ -32,81 +33,23 @@ class Category(models.Model):
     def __unicode__(self):
         return self.name
     
-class Forum(models.Model):
-    name = models.CharField(max_length = 100)
-    slug = models.SlugField(max_length = 110)
-    description = models.TextField(default = '')
-    ordering = models.PositiveIntegerField(default = 1)
-    category = models.ForeignKey(Category)
-    created_on = models.DateTimeField(auto_now_add = True)
-    updated_on = models.DateTimeField(blank = True, null = True)
-    num_topics = models.IntegerField(default = 0)
-    num_posts = models.IntegerField(default = 0)
-
-    last_post = models.CharField(max_length = 255, blank = True)#pickle obj
-    
-    class Meta:
-        verbose_name = _("Forum")
-        verbose_name_plural = _("Forums")
-        ordering = ('ordering','-created_on')
-
-    def _count_nums_topic(self):
-        return self.topic_set.all().count()
-
-    def _count_nums_post(self):
-        return self.topic_set.all().aggregate(Sum('num_replies'))['num_replies__sum'] or 0
-
-    def get_last_post(self):
-        if not self.last_post:
-            return {}
-        return pickle.loads(b64decode(self.last_post))
-    
-    @models.permalink
-    def get_absolute_url(self):
-        return ('lbforum_forum', (), {'forum_slug': self.slug})
-
-    def __unicode__(self):
-        return self.name 
-
-    def update_state_info(self, commit=True):
-        self.num_topics = self._count_nums_topic()
-        self.num_posts = self._count_nums_post()
-        if self.num_topics:
-            last_post = Post.objects.all().filter(topic__forum=self).order_by('-created_on')[0]
-            self.last_post = gen_last_post_info(last_post)
-        else:
-            self.last_post = ''
-        if commit:
-            self.save()
-
-class TopicType(models.Model):
-    forum = models.ForeignKey(Forum, verbose_name=_('Forum'))
-    name = models.CharField(max_length = 100)
-    slug = models.SlugField(max_length = 100)
-    description = models.TextField(blank=True, default = '')
-
-    def __unicode__(self):
-        return self.name 
-    
 class TopicManager(models.Manager):
     def get_query_set(self):
         return super(TopicManager, self).get_query_set().filter(hidden = False)
     
 LEVEL_CHOICES = (
         (30, _('Default')),
-        (60, _('Distillate')),
+        #(60, _('Distillate')),
         )
 
 class Topic(models.Model):
-    forum = models.ForeignKey(Forum, verbose_name=_('Forum'))
-    topic_type = models.ForeignKey(TopicType, verbose_name=_('Topic Type'), 
-            blank=True, null=True)
     posted_by = models.ForeignKey(User)
     
     #TODO ADD TOPIC POST.
     post = models.ForeignKey('Post', verbose_name=_('Post'), related_name='topics_',
             blank=True, null=True)
     subject = models.CharField(max_length=999)
+    category = models.ForeignKey(Category, default=1)
     num_views = models.IntegerField(default=0)
     num_replies = models.PositiveSmallIntegerField(default=0)#posts...
     created_on = models.DateTimeField(auto_now_add=True)
@@ -293,6 +236,6 @@ def update_user_last_activity(sender, instance, created, **kwargs):
 
 post_save.connect(create_user_profile, sender = User)
 post_save.connect(update_topic_on_post, sender = Post)
-post_save.connect(update_forum_on_post, sender = Post)
-post_save.connect(update_forum_on_topic, sender = Topic)
+#post_save.connect(update_forum_on_post, sender = Post)
+#post_save.connect(update_forum_on_topic, sender = Topic)
 post_save.connect(update_user_last_activity, sender = Online)
