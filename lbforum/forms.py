@@ -20,7 +20,7 @@ class ForumForm(forms.Form):
 class PostForm(forms.ModelForm):
     subject = forms.CharField(label=_('Subject'), \
             widget=forms.TextInput(attrs={'size':'80'}))
-    category = forms.ModelChoiceField(queryset=Category.objects.all())
+    category = forms.ModelChoiceField(label=_('Category'), queryset=Category.objects.all())
     message = forms.CharField(label=_('Message'), \
             widget=forms.Textarea(attrs={'cols':'95', 'rows':'14'}))
     attachments = forms.Field(label=_('Attachments'), required=False,\
