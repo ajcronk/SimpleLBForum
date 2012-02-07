@@ -49,6 +49,8 @@ class EditPostForm(PostForm):
         if not self.instance.topic_post:
             self.fields['subject'].required = False
             self.fields['category'].required = False
+        else:
+            self.initial['category'] = self.instance.topic.category
 
     def save(self):
         post = self.instance
@@ -60,6 +62,7 @@ class EditPostForm(PostForm):
         post.save()
         if post.topic_post:
             post.topic.subject = self.cleaned_data['subject']
+            post.topic.category = self.cleaned_data['category']
             post.topic.need_replay = self.cleaned_data['need_replay']
             post.topic.need_reply_attachments = self.cleaned_data['need_reply_attachments']
             post.topic.save()
