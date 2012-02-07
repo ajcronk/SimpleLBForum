@@ -37,8 +37,6 @@
         <div class="cell">
             <span class="bigger">
                 <a href="{% url lbforum_index %}">{{ LBFORUM_TITLE }}</a>
-                <span class="chevron">&raquo;</span>
-                <a href="{{ forum.get_absolute_url }}">{{ forum.name }}</a>
                 {% if topic %}
                 <span class="chevron">&raquo;</span>
                 <a href="{{ topic.get_absolute_url }}">{{ topic.subject }}</a>
@@ -67,7 +65,9 @@
                     {% csrf_token %} 
                 </div>
                 {% if topic_post%}
+                    Subject
                     {{form.subject}}
+                    &nbsp;&nbsp;Category
                     {{form.category}}
                     <div class="sep10"></div>
                 {% endif %}

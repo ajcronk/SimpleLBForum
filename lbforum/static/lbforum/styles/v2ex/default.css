@@ -352,7 +352,7 @@ td.avatar_mini {
 }
 
 .snow {
-	color: rgba(0, 0, 0, 0.15);
+	color: rgba(0, 0, 0, 0.35);
 }
 
 .chevron {
@@ -1032,7 +1032,7 @@ a.fade:hover {
     padding: 0 2px 0 2px;
 }
 #reply-btns a {
-    color: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.35);
 }
 #quick-reply-box input {
     margin-right: 10px;

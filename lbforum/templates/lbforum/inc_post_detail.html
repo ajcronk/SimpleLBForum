@@ -12,10 +12,10 @@
             <td width="auto" valign="top">
                 <div class="fr" id="reply-btns">
                     <strong>
-                        <small class="snow">#{% page_item_idx page_obj forloop %} - {{ post.created_on|lbtimesince }}
+                        <small class="snow">{{ post.created_on|lbtimesince }}
                             {% if user.is_authenticated %}
                             &bull;
-                            <a href="{% url lbforum_new_replay topic.pk %}?qid={{post.pk}}">{% trans "quote" %}</a>
+                            <a href="{% url lbforum_new_reply topic.pk %}?qid={{post.pk}}">{% trans "quote" %}</a>
                             {% if user == post.posted_by or user.is_staff %}
                             <a href="{% url lbforum_post_edit post.pk %}">{% trans "edit" %}</a>
                             {% endif %}
@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="sep3"></div>
-                <strong><a href="/member/MC" class="dark">{{post.posted_by.username}}</a></strong>
+                <strong><a href="{% url lbforum_user_profile post.posted_by.pk %}" class="dark">{{post.posted_by.username}}</a></strong>
                 <div class="sep5"></div>
                 <div class="content reply_content">
                     {% include 'lbforum/inc_post_content.html' %}

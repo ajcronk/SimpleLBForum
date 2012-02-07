@@ -34,22 +34,6 @@
                 at {{ topic.get_last_post.update|lbtimesince }},
                 {{topic.num_views}} hits
 				{% if user.is_staff %}
-				<span>|</span>
-				<span>
-					<a href="{% url lbforum_update_topic_attr_as_not topic.id 'distillate' %}">
-						{% if topic.level >= 60 %} {% trans "undistillate" %} {% else %} {% trans "distillate" %} {% endif %}
-					</a>
-				</span>
-				<span>
-					<a href="{% url lbforum_update_topic_attr_as_not topic.id 'close' %}">
-						{% if topic.closed %} {% trans "unclose" %} {% else %} {% trans "close" %} {% endif %}
-					</a>
-				</span>
-				<span>
-					<a href="{% url lbforum_update_topic_attr_as_not topic.id 'hide' %}">
-						{% if topic.hidden %} {% trans "unhide" %} {% else %} {% trans "hide" %} {% endif %}
-					</a>
-				</span>
 				<span>
 					<a href="{% url lbforum_delete_topic topic.id %}" onclick="return confirm('{% trans "Do you want to delete it?" %}')">{% trans "delete" %}</a>
 				</span>
@@ -70,11 +54,11 @@
                     |
                 {% endif %}
                 <span>
-                    <a href="{% url lbforum_new_replay topic.pk %}?qid={{post.pk}}">{% trans "quote" %}</a>
+                    <a href="{% url lbforum_new_reply topic.pk %}?qid={{post.pk}}">{% trans "quote" %}</a>
                 </span>
                 {% if user.is_authenticated %}
                     <span>
-                        <a class="newpost" href="{% url lbforum_new_replay topic.pk %}">
+                        <a class="newpost" href="{% url lbforum_new_reply topic.pk %}">
                             {% trans "Post reply" %}
                         </a>
                     </span>
@@ -114,7 +98,7 @@
 {% if user.is_authenticated %}
 <div class="sep20"></div>
 <div class="box" id="quick-reply-box">
-    <form action="{% url lbforum_new_replay topic.pk %}" accept-charset="utf-8" method="post" class="frm-form">
+    <form action="{% url lbforum_new_reply topic.pk %}" accept-charset="utf-8" method="post" class="frm-form">
         <div class="cell"><div class="fr fade"><a class="dark" href="#Top">Top&uarr;</a></div>
             <span class="fade">
                 {% trans "Quick reply to this topic" %}

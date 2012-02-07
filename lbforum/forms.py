@@ -46,10 +46,9 @@ class EditPostForm(PostForm):
         self.initial['subject'] = self.instance.topic.subject
         self.initial['need_replay'] = self.instance.topic.need_replay
         self.initial['need_reply_attachments'] = self.instance.topic.need_reply_attachments
-        if self.instance.topic.topic_type:
-            self.initial['topic_type'] = self.instance.topic.topic_type.id
         if not self.instance.topic_post:
             self.fields['subject'].required = False
+            self.fields['category'].required = False
 
     def save(self):
         post = self.instance
@@ -63,12 +62,6 @@ class EditPostForm(PostForm):
             post.topic.subject = self.cleaned_data['subject']
             post.topic.need_replay = self.cleaned_data['need_replay']
             post.topic.need_reply_attachments = self.cleaned_data['need_reply_attachments']
-            topic_type = self.cleaned_data['topic_type']
-            if topic_type:
-                topic_type = TopicType.objects.get(id=topic_type)
-            else:
-                topic_type = None
-            post.topic.topic_type = topic_type
             post.topic.save()
         return post
 
@@ -77,6 +70,7 @@ class NewPostForm(PostForm):
         super(NewPostForm, self).__init__(*args, **kwargs)
         if self.topic:
             self.fields['subject'].required = False
+            self.fields['category'].required = False
 
     def save(self):
         topic_post = False

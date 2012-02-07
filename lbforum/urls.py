@@ -15,7 +15,7 @@ urlpatterns = patterns('',
         views.update_topic_attr_as_not, name='lbforum_update_topic_attr_as_not'),    
 
     url('^topic/new/$', views.new_post, name='lbforum_new_topic'),
-    url('^reply/new/(?P<topic_id>\d+)/$', views.new_post, name='lbforum_new_replay'),    
+    url('^reply/new/(?P<topic_id>\d+)/$', views.new_post, name='lbforum_new_reply'),    
 
     url('^post/(?P<post_id>\d+)/$', views.post, name='lbforum_post'),    
     url('^post/(?P<post_id>\d+)/edit/$', views.edit_post, name='lbforum_post_edit'),    
@@ -33,7 +33,7 @@ urlpatterns += patterns('',
     url(r'^account/$', login_required(accountviews.profile), name='lbforum_account_index'),
     url(r'^account/signature/$', accountviews.signature, name='lbforum_signature'),
 
-    url(r'^user/(?P<user_id>\d+)/$', login_required(accountviews.profile), name='lbforum_user_profile'),
+    url(r'^user/(?P<user_id>\d+)/$', accountviews.profile, name='lbforum_user_profile'),
 )
 
 urlpatterns += patterns('simpleavatar.views',

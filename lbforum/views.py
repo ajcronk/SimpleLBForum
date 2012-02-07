@@ -116,19 +116,17 @@ def edit_post(request, post_id, form_class=EditPostForm, template_name="lbforum/
     else:
         form = form_class(instance=edit_post)
     ext_ctx = {'form':form, 'post': edit_post, 'topic':edit_post.topic, \
-            'forum':edit_post.topic.forum, 'post_type':post_type, 'preview':preview}
+            'post_type':post_type, 'preview':preview}
     ext_ctx['unpublished_attachments'] = request.user.attachment_set.all().filter(activated=False)
     ext_ctx['topic_post'] = edit_post.topic_post
     ext_ctx['session_key'] = request.session.session_key
     return render(request, template_name, ext_ctx)
 
-@login_required
 def user_topics(request, user_id, template_name='lbforum/account/user_topics.html'):
     view_user = User.objects.get(pk=user_id)
     topics = view_user.topic_set.order_by('-created_on').select_related()
     return render(request, template_name, {'topics': topics, 'view_user': view_user})
 
-@login_required
 def user_posts(request, user_id, template_name='lbforum/account/user_posts.html'):
     view_user = User.objects.get(pk=user_id)
     posts = view_user.post_set.order_by('-created_on').select_related()
@@ -137,13 +135,10 @@ def user_posts(request, user_id, template_name='lbforum/account/user_posts.html'
 @login_required
 def delete_topic(request, topic_id):
     if not request.user.is_staff:
-        #messages.error(_('no right'))
         return HttpResponse(ugettext('no right'))
     topic = get_object_or_404(Topic, id = topic_id)
-    forum = topic.forum
     topic.delete()
-    forum.update_state_info()
-    return HttpResponseRedirect(reverse("lbforum_forum", args=[forum.slug]))
+    return HttpResponseRedirect(reverse("lbforum_forum"))
 
 @login_required
 def delete_post(request, post_id):
